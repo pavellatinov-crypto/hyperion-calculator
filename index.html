@@ -52,10 +52,16 @@
     padding:17px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(43,212,232,.28)}
   .cta:active{transform:translateY(1px)}
   .cta small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:3px}
-  .lead{margin-top:16px}
+  .offer{background:#0b1426;border:1px solid var(--line);border-left:3px solid var(--teal);
+    border-radius:0 12px 12px 0;padding:14px 16px;font-size:14.5px;color:#c3d3ec;margin-bottom:16px}
+  .offer b{color:var(--teal-soft)}
+  .lead{margin-bottom:14px}
   .lead input{width:100%;background:#0b1426;border:1px solid var(--line);border-radius:12px;
     color:var(--text);padding:14px;font-size:15px;margin-bottom:10px}
   .lead input:focus{outline:none;border-color:var(--teal)}
+  .lead input.bad{border-color:var(--danger)}
+  .err{color:var(--danger);font-size:13px;min-height:16px;padding-left:2px}
+  .cta{font-family:inherit}
   .foot{text-align:center;color:#5a6d8c;font-size:12px;margin-top:26px;line-height:1.6}
   .foot b{color:var(--muted)}
 </style>
@@ -97,13 +103,18 @@
   </div>
   <p class="note">Это выручка от повторных визитов, которую вы уже могли бы получать с тех же гостей.</p>
 
-  <a class="cta" id="cta" href="#">Получить бесплатный аудит удержания
-    <small>покажу, где именно уходят деньги и как их вернуть — без бюджета на рекламу</small></a>
+  <div class="offer">
+    Это только <b>сумма</b>. Где именно она утекает в вашем кафе и как её вернуть — покажу в бесплатном разборе под ваше заведение. Оставьте контакт, и я пришлю его лично.
+  </div>
 
   <div class="lead">
-    <input type="text" id="name" placeholder="Ваше имя и название кафе">
-    <input type="text" id="contact" placeholder="Телефон или @telegram для связи">
+    <input type="text" id="name" placeholder="Имя и название кафе">
+    <input type="text" id="contact" placeholder="Телефон или @telegram — куда прислать разбор">
+    <div id="err" class="err"></div>
   </div>
+
+  <button class="cta" id="cta">Получить бесплатный разбор
+    <small>найду точки утечки в вашем кафе и план возврата — без бюджета на рекламу</small></button>
 
   <p class="foot">
     <b>Hyperion</b> — помогаю малому бизнесу не терять клиентов.<br>
@@ -151,8 +162,21 @@
 
   document.getElementById("cta").addEventListener("click", function(e){
     e.preventDefault();
-    var name = document.getElementById("name").value.trim();
-    var contact = document.getElementById("contact").value.trim();
+    var nameEl = document.getElementById("name"), contactEl = document.getElementById("contact");
+    var name = nameEl.value.trim();
+    var contact = contactEl.value.trim();
+    var err = document.getElementById("err");
+
+    // Валидация: без имени и контакта заявку не отправляем
+    nameEl.classList.toggle("bad", !name);
+    contactEl.classList.toggle("bad", !contact);
+    if (!name || !contact){
+      err.textContent = "Заполните имя и контакт — пришлю разбор именно вам.";
+      (!name ? nameEl : contactEl).focus();
+      return;
+    }
+    err.textContent = "";
+
     var msg = "Заявка на аудит удержания (Hyperion)\n" +
       "Кафе: " + (name || "—") + "\n" +
       "Контакт: " + (contact || "—") + "\n" +
@@ -175,9 +199,15 @@
     // 2) Открываем Telegram с готовой заявкой (мгновенный контакт)
     if (LEAD_TELEGRAM && LEAD_TELEGRAM !== "REPLACE_ME"){
       window.open("https://t.me/" + LEAD_TELEGRAM + "?text=" + encodeURIComponent(msg), "_blank");
-    } else {
-      alert("Заявка отправлена:\n\n" + msg);
     }
+
+    // Подтверждение
+    var cta = document.getElementById("cta");
+    cta.innerHTML = "✓ Заявка отправлена — скоро свяжусь";
+    cta.disabled = true;
+    cta.style.opacity = "0.75";
+    err.style.color = "#5fd39a";
+    err.textContent = "Готово! Если Telegram не открылся — я всё равно получил вашу заявку.";
   });
 </script>
 </body>
