@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сколько денег теряет ваше кафе — калькулятор потерь | Hyperion</title>
+<meta name="description" content="Посчитайте за 30 секунд, сколько прибыли ваше кафе теряет на клиентах, которые не возвращаются.">
+<style>
+  :root{
+    --bg:#070b16; --bg2:#0d1830; --card:#0f1a30; --line:#1e2c47;
+    --teal:#2bd4e8; --teal-soft:#7ef1ff; --text:#eef4ff; --muted:#8fa4c4; --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(120% 90% at 35% 0%, #0d1830 0%, #070b16 55%, #04060e 100%);
+    color:var(--text);min-height:100vh;line-height:1.55;
+    padding:24px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .orb{width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle at 50% 45%, #d8feff 0%, #4ce6ff 30%, #12b8d4 65%, #0b6f86 100%);
+    box-shadow:0 0 22px rgba(43,212,232,.55)}
+  .brand b{font-weight:700;letter-spacing:2px;font-size:19px}
+  .brand span{color:var(--muted);font-size:13px;margin-left:2px}
+  h1{font-size:27px;line-height:1.25;margin-bottom:10px;font-weight:700}
+  h1 em{color:var(--teal);font-style:normal}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .card{background:linear-gradient(180deg,#0f1a30,#0b1426);border:1px solid var(--line);
+    border-radius:18px;padding:22px;margin-bottom:18px}
+  .field{margin-bottom:22px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:14px;color:var(--muted);margin-bottom:10px}
+  .field label .val{color:var(--teal-soft);font-weight:700;font-size:17px}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--teal) 0%,var(--teal) var(--pct,50%),#1c2a45 var(--pct,50%),#1c2a45 100%);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:#eaffff;border:3px solid var(--teal);cursor:pointer;box-shadow:0 0 12px rgba(43,212,232,.6)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;
+    background:#eaffff;border:3px solid var(--teal);cursor:pointer}
+  .result{background:linear-gradient(180deg,#1a1119,#120a12);border:1px solid #45222c;
+    border-radius:18px;padding:26px 22px;text-align:center;margin-bottom:18px}
+  .result .cap{color:var(--muted);font-size:14px;margin-bottom:6px}
+  .result .big{font-size:42px;font-weight:800;color:var(--danger);letter-spacing:-.5px;line-height:1.1}
+  .result .year{color:var(--muted);font-size:15px;margin-top:8px}
+  .result .year b{color:#ffb3b3}
+  .note{font-size:13px;color:var(--muted);text-align:center;margin:-4px 4px 22px}
+  .cta{display:block;width:100%;text-align:center;text-decoration:none;
+    background:linear-gradient(90deg,#12b8d4,#2bd4e8);color:#04121a;font-weight:700;font-size:17px;
+    padding:17px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(43,212,232,.28)}
+  .cta:active{transform:translateY(1px)}
+  .cta small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:3px}
+  .lead{margin-top:16px}
+  .lead input{width:100%;background:#0b1426;border:1px solid var(--line);border-radius:12px;
+    color:var(--text);padding:14px;font-size:15px;margin-bottom:10px}
+  .lead input:focus{outline:none;border-color:var(--teal)}
+  .foot{text-align:center;color:#5a6d8c;font-size:12px;margin-top:26px;line-height:1.6}
+  .foot b{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="orb"></div>
+    <div><b>AURACORE</b><span> · Hyperion</span></div>
+  </div>
+
+  <h1>Сколько ваше кафе теряет на гостях, которые <em>не возвращаются</em>?</h1>
+  <p class="sub">Двигайте ползунки под своё заведение. Расчёт идёт по вашим цифрам — за 30 секунд.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Новых гостей в день <span class="val"><span id="v_guests">20</span></span></label>
+      <input type="range" id="guests" min="5" max="200" step="5" value="20">
+    </div>
+    <div class="field">
+      <label>Средний чек, ₽ <span class="val"><span id="v_check">500</span></span></label>
+      <input type="range" id="check" min="150" max="3000" step="50" value="500">
+    </div>
+    <div class="field">
+      <label>Не возвращаются после первого визита <span class="val"><span id="v_churn">30</span>%</span></label>
+      <input type="range" id="churn" min="5" max="70" step="1" value="30">
+    </div>
+    <div class="field">
+      <label>Сколько раз в месяц ходил бы постоянный гость <span class="val"><span id="v_freq">3</span></span></label>
+      <input type="range" id="freq" min="1" max="8" step="1" value="3">
+    </div>
+  </div>
+
+  <div class="result">
+    <div class="cap">Ваше кафе теряет примерно</div>
+    <div class="big"><span id="loss">—</span> ₽ / месяц</div>
+    <div class="year">это <b><span id="lossYear">—</span> ₽ в год</b> недополученной выручки</div>
+  </div>
+  <p class="note">Это выручка от повторных визитов, которую вы уже могли бы получать с тех же гостей.</p>
+
+  <a class="cta" id="cta" href="#">Получить бесплатный аудит удержания
+    <small>покажу, где именно уходят деньги и как их вернуть — без бюджета на рекламу</small></a>
+
+  <div class="lead">
+    <input type="text" id="name" placeholder="Ваше имя и название кафе">
+    <input type="text" id="contact" placeholder="Телефон или @telegram для связи">
+  </div>
+
+  <p class="foot">
+    <b>Hyperion</b> — помогаю малому бизнесу не терять клиентов.<br>
+    Расчёт — оценка по вашим вводным, не финансовая гарантия.
+  </p>
+
+</div>
+
+<script>
+  // === НАСТРОЙКА ===
+  var LEAD_TELEGRAM = "PavelLatinov"; // Telegram-логин для связи (без @)
+  // n8n-вебхук: лид фиксируется в системе сразу, без потерь (даже если не дожал Telegram)
+  var LEAD_WEBHOOK = "https://primary-production-df4ed.up.railway.app/webhook/hyperion-lead";
+
+  var fmt = function(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); };
+  var ids = ["guests","check","churn","freq"];
+  var loss = 0, lossY = 0;
+
+  function calc(){
+    var g = +document.getElementById("guests").value;
+    var c = +document.getElementById("check").value;
+    var churn = +document.getElementById("churn").value / 100;
+    var f = +document.getElementById("freq").value;
+
+    document.getElementById("v_guests").textContent = g;
+    document.getElementById("v_check").textContent = fmt(c);
+    document.getElementById("v_churn").textContent = Math.round(churn*100);
+    document.getElementById("v_freq").textContent = f;
+
+    // потерянные повторные визиты: новые гости за месяц × доля невозврата × упущенные визиты × чек
+    loss = g * 30 * churn * f * c;
+    lossY = loss * 12;
+    document.getElementById("loss").textContent = fmt(loss);
+    document.getElementById("lossYear").textContent = fmt(lossY);
+
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      var pct = (el.value - el.min) / (el.max - el.min) * 100;
+      el.style.setProperty("--pct", pct + "%");
+    });
+  }
+
+  ids.forEach(function(id){ document.getElementById(id).addEventListener("input", calc); });
+  calc();
+
+  document.getElementById("cta").addEventListener("click", function(e){
+    e.preventDefault();
+    var name = document.getElementById("name").value.trim();
+    var contact = document.getElementById("contact").value.trim();
+    var msg = "Заявка на аудит удержания (Hyperion)\n" +
+      "Кафе: " + (name || "—") + "\n" +
+      "Контакт: " + (contact || "—") + "\n" +
+      "Расчётная потеря: " + fmt(loss) + " ₽/мес (" + fmt(lossY) + " ₽/год)";
+
+    // 1) Надёжная фиксация лида в системе (fire-and-forget, не теряется)
+    if (LEAD_WEBHOOK){
+      try {
+        fetch(LEAD_WEBHOOK, {
+          method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            name: name, contact: contact,
+            loss: Math.round(loss), lossYear: Math.round(lossY)
+          }).toString()
+        });
+      } catch(err){}
+    }
+
+    // 2) Открываем Telegram с готовой заявкой (мгновенный контакт)
+    if (LEAD_TELEGRAM && LEAD_TELEGRAM !== "REPLACE_ME"){
+      window.open("https://t.me/" + LEAD_TELEGRAM + "?text=" + encodeURIComponent(msg), "_blank");
+    } else {
+      alert("Заявка отправлена:\n\n" + msg);
+    }
+  });
+</script>
+</body>
+</html>
