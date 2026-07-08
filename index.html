@@ -180,7 +180,8 @@
     });
   });
 
-  function digits(s){ return (s.match(/\d/g) || []).length; }
+  var VOWEL = /[аеёиоуыэюяaeiouy]/i;
+  function digitsOnly(s){ return (s.match(/\d/g) || []).join(""); }
 
   document.getElementById("cta").addEventListener("click", function(e){
     e.preventDefault();
@@ -188,10 +189,12 @@
     var name=nameEl.value.trim(), business=bizEl.value.trim(), phone=phoneEl.value.trim();
     var err=document.getElementById("err");
 
-    // Валидация
-    var nameOk = /[а-яёa-z]{2,}/i.test(name);
-    var bizOk = business.length >= 2;
-    var phoneOk = digits(phone) >= 10 && digits(phone) <= 15;
+    // Валидация. Телефон — главный фильтр (строгий РФ-формат).
+    var d = digitsOnly(phone);
+    var phoneOk = (d.length === 11 && /^[78]/.test(d)) || d.length === 10;
+    // имя/бизнес: не пусто и есть гласная (режет клавиатурную кашу; «вово»-подобное не ловится — это норма)
+    var nameOk = name.length >= 2 && VOWEL.test(name);
+    var bizOk  = business.length >= 2 && VOWEL.test(business);
     var msgrOk = !!messenger;
 
     nameEl.classList.toggle("bad", !nameOk);
@@ -202,7 +205,7 @@
 
     if(!nameOk){ err.textContent="Впишите ваше имя."; nameEl.focus(); return; }
     if(!bizOk){ err.textContent="Впишите название бизнеса."; bizEl.focus(); return; }
-    if(!phoneOk){ err.textContent="Впишите корректный телефон (10–11 цифр)."; phoneEl.focus(); return; }
+    if(!phoneOk){ err.textContent="Впишите корректный телефон: 11 цифр (8… или +7…)."; phoneEl.focus(); return; }
     if(!msgrOk){ err.textContent="Выберите, где удобнее связаться."; return; }
     err.textContent="";
 
@@ -214,6 +217,7 @@
           headers:{ "Content-Type":"application/x-www-form-urlencoded" },
           body:new URLSearchParams({
             name:name, business:business, phone:phone, messenger:messenger,
+            contact:phone + " (" + messenger + ")",
             loss:Math.round(loss), lossYear:Math.round(lossY)
           }).toString()
         });
